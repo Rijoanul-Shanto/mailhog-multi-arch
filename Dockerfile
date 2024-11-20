@@ -9,10 +9,7 @@ WORKDIR /app
 # Clone MailHog repository
 RUN git clone https://github.com/mailhog/MailHog.git .
 
-# Initialize Go module and download dependencies
-RUN go mod init mailhog \
-    && go mod tidy
-
+# Debug architecture variables
 RUN echo "Building for TARGETPLATFORM: $TARGETPLATFORM" \
     && echo "TARGETOS: $TARGETOS" \
     && echo "TARGETARCH: $TARGETARCH"
@@ -20,7 +17,7 @@ RUN echo "Building for TARGETPLATFORM: $TARGETPLATFORM" \
 # Build the application with explicit architecture
 RUN CGO_ENABLED=0 \
     GOOS=linux \
-    GOARCH=$(echo $TARGETARCH | sed 's/arm64v8/arm64/; s/amd64/amd64/; s/arm\/v7/arm/') \
+    GOARCH=$(echo $TARGETARCH | sed 's/arm64v8/arm64/; s/arm\/v7/arm/') \
     go build -o mailhog
 
 FROM alpine:latest
@@ -29,7 +26,7 @@ FROM alpine:latest
 RUN apk add --no-cache ca-certificates
 
 # Copy MailHog binary
-COPY --from=builder /go/bin/MailHog /usr/local/bin/mailhog
+COPY --from=builder /app/mailhog /usr/local/bin/mailhog
 
 # Metadata
 LABEL maintainer="Rijoanul Hasan <rijoanul.shanto@gmail.com>"
