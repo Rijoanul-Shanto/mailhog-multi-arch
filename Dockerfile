@@ -13,8 +13,15 @@ RUN git clone https://github.com/mailhog/MailHog.git .
 RUN go mod init mailhog \
     && go mod tidy
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -o mailhog
+RUN echo "Building for TARGETPLATFORM: $TARGETPLATFORM" \
+    && echo "TARGETOS: $TARGETOS" \
+    && echo "TARGETARCH: $TARGETARCH"
+
+# Build the application with explicit architecture
+RUN CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=$(echo $TARGETARCH | sed 's/arm64v8/arm64/; s/amd64/amd64/; s/arm\/v7/arm/') \
+    go build -o mailhog
 
 FROM alpine:latest
 
