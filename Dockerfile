@@ -6,9 +6,15 @@ RUN apk add --no-cache git build-base
 # Set working directory
 WORKDIR /app
 
-# Clone and build MailHog directly
-RUN git clone https://github.com/mailhog/MailHog.git . \
-    && CGO_ENABLED=0 GOOS=linux go build -o mailhog
+# Clone MailHog repository
+RUN git clone https://github.com/mailhog/MailHog.git .
+
+# Initialize Go module and download dependencies
+RUN go mod init mailhog \
+    && go mod tidy
+
+# Build the application
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -o mailhog
 
 FROM alpine:latest
 
