@@ -11,7 +11,8 @@ RUN git clone https://github.com/mailhog/MailHog.git .
 
 # Initialize Go module and download dependencies
 RUN go mod init mailhog \
-    && go mod tidy
+    && go mod tidy \
+    && go mod vendor
 
 # Debug architecture variables
 RUN echo "TARGETARCH: $TARGETARCH"
@@ -19,8 +20,8 @@ RUN echo "TARGETARCH: $TARGETARCH"
 # Build the application with explicit architecture
 RUN CGO_ENABLED=0 \
     GOOS=linux \
-    GOARCH=$(echo $TARGETARCH | sed 's/arm64v8/arm64/; s/arm\/v7/arm/') \
-    go build -o mailhog
+    GOARCH=$(echo ${TARGETARCH:-amd64} | sed 's/arm64v8/arm64/; s/arm\/v7/arm/') \
+    go build -mod=vendor -o mailhog
 
 FROM alpine:latest
 
