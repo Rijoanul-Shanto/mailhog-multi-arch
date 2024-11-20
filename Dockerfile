@@ -6,9 +6,9 @@ RUN apk add --no-cache git build-base
 # Set working directory
 WORKDIR /app
 
-# Install MailHog
-RUN GOARCH=$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/') \
-    go install github.com/mailhog/MailHog@latest
+# Clone and build MailHog directly
+RUN git clone https://github.com/mailhog/MailHog.git . \
+    && CGO_ENABLED=0 GOOS=linux go build -o mailhog
 
 FROM alpine:latest
 
