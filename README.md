@@ -7,7 +7,7 @@ A multi-architecture (amd64, arm64, armv7) Docker image for Mailhog.
 
 ### Docker Pull
 ```bash
-docker pull yourusername/mailhog:latest
+docker pull rijoanul/mailhog:latest
 ```
 
 ### Docker Run
@@ -15,5 +15,5 @@ docker pull yourusername/mailhog:latest
 docker run -d \
   -p 1025:1025 \
   -p 8025:8025 \
-  yourusername/mailhog:latest
+  rijoanul/mailhog:latest
 ```
