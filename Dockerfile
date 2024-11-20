@@ -1,7 +1,7 @@
 FROM golang:1.21-alpine AS builder
 
 # Install build dependencies
-RUN apk add --no-cache git build-base
+RUN apk add --no-cache git build-base ca-certificates
 
 # Set working directory
 WORKDIR /app
@@ -9,10 +9,12 @@ WORKDIR /app
 # Clone MailHog repository
 RUN git clone https://github.com/mailhog/MailHog.git .
 
+# Initialize Go module and download dependencies
+RUN go mod init mailhog \
+    && go mod tidy
+
 # Debug architecture variables
-RUN echo "Building for TARGETPLATFORM: $TARGETPLATFORM" \
-    && echo "TARGETOS: $TARGETOS" \
-    && echo "TARGETARCH: $TARGETARCH"
+RUN echo "TARGETARCH: $TARGETARCH"
 
 # Build the application with explicit architecture
 RUN CGO_ENABLED=0 \
