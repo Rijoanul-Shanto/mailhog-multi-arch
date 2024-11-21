@@ -20,7 +20,7 @@ RUN echo "TARGETARCH: $TARGETARCH"
 # Build the application with explicit architecture
 RUN CGO_ENABLED=0 \
     GOOS=linux \
-    GOARCH=$(echo ${TARGETARCH:-amd64} | sed 's/arm64v8/arm64/; s/arm\/v7/arm/') \
+    GOARCH=$(echo ${TARGETARCH:-amd64} | sed 's/arm64v8/arm64/; s/amd64/amd64/; s/arm\/v8/arm/') \
     go build -mod=vendor -o mailhog
 
 FROM alpine:latest

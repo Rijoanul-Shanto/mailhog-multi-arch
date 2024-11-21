@@ -2,13 +2,8 @@ name: Build and Publish Mailhog Multi-Arch Docker Image
 
 on:
   push:
-    branches: 
-      - main
-      - master
-  pull_request:
-    branches:
-      - main
-      - master
+    tags:
+      - "*"
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
