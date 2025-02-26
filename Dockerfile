@@ -9,19 +9,23 @@ WORKDIR /app
 # Clone MailHog repository
 RUN git clone https://github.com/mailhog/MailHog.git .
 
-# Initialize Go module and download dependencies
-RUN go mod init mailhog \
-    && go mod tidy \
-    && go mod vendor
+# Use ARG for architecture - this will be passed by Docker buildx
+ARG TARGETARCH
+ARG TARGETVARIANT
 
-# Debug architecture variables
-RUN echo "TARGETARCH: $TARGETARCH"
-
-# Build the application with explicit architecture
-RUN CGO_ENABLED=0 \
+# Map ARM variant to correct GOARCH value
+RUN if [ "$TARGETARCH" = "arm" ] && [ "$TARGETVARIANT" = "v8" ]; then \
+      export BUILD_ARCH="arm64"; \
+    elif [ "$TARGETARCH" = "arm" ]; then \
+      export BUILD_ARCH="arm"; \
+    else \
+      export BUILD_ARCH="$TARGETARCH"; \
+    fi && \
+    echo "Building for architecture: $BUILD_ARCH" && \
+    CGO_ENABLED=0 \
     GOOS=linux \
-    GOARCH=$(echo ${TARGETARCH:-amd64} | sed 's/arm64v8/arm64/; s/amd64/amd64/; s/arm\/v8/arm/') \
-    go build -mod=vendor -o mailhog
+    GOARCH=$BUILD_ARCH \
+    go build -o mailhog
 
 FROM alpine:latest
 
@@ -36,6 +40,7 @@ LABEL maintainer="Rijoanul Hasan <rijoanul.shanto@gmail.com>"
 LABEL org.opencontainers.image.source="https://github.com/Rijoanul-Shanto/mailhog-multi-arch"
 LABEL org.opencontainers.image.description="Multi-platform Mailhog Docker Image"
 
+# Expose SMTP and HTTP ports
 EXPOSE 1025 8025
 
 ENTRYPOINT ["/usr/local/bin/mailhog"]
