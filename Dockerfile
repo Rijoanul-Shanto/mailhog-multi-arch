@@ -13,13 +13,10 @@ RUN git clone https://github.com/mailhog/MailHog.git .
 ARG TARGETARCH
 ARG TARGETVARIANT
 
-# Map ARM variant to correct GOARCH value
-RUN if [ "$TARGETARCH" = "arm" ] && [ "$TARGETVARIANT" = "v8" ]; then \
-      export BUILD_ARCH="arm64"; \
-    elif [ "$TARGETARCH" = "arm" ]; then \
-      export BUILD_ARCH="arm"; \
-    else \
-      export BUILD_ARCH="$TARGETARCH"; \
+# Build the application with proper architecture mapping
+RUN BUILD_ARCH=$TARGETARCH && \
+    if [ "$TARGETARCH" = "arm" ] && [ "$TARGETVARIANT" = "v8" ]; then \
+      BUILD_ARCH="arm64"; \
     fi && \
     echo "Building for architecture: $BUILD_ARCH" && \
     CGO_ENABLED=0 \
